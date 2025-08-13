@@ -4,6 +4,7 @@ import PWABadge from './components/PWABadge.vue'
 
 <template>
   <div>
+    
     <PWABadge />
   </div>
 </template>
