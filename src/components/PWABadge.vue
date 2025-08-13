@@ -2,9 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
-// periodic sync is disabled, change the value to enable it, the period is in milliseconds
-// You can remove onRegisteredSW callback and registerPeriodicSync function
-const period = 0
+// check for updates every minute
+const period = 60 * 1000
 
 const swActivated = ref(false)
 
