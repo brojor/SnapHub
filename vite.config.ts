@@ -3,10 +3,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
+import VueRouter from 'unplugin-vue-router/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(),  UnoCSS(), VitePWA({
+  plugins: [VueRouter({}), vue(),  UnoCSS(), VitePWA({
     registerType: 'prompt',
     injectRegister: false,
 
