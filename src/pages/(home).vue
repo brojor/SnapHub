@@ -6,14 +6,8 @@ import ConnectionStatus from '../components/ConnectionStatus.vue'
 import OfflineBanner from '../components/OfflineBanner.vue'
 import AppBar from '../components/AppBar.vue'
 
-interface FileWithPreview {
-  file: File
-  preview: string
-}
-
 const router = useRouter()
 const isOnline = ref(navigator.onLine)
-const selectedFiles = ref<FileWithPreview[]>([])
 
 // Sledování stavu připojení
 const updateOnlineStatus = () => {
@@ -58,23 +52,32 @@ const selectFromGallery = async () => {
         return
       }
       
-      // Generování náhledů
-      const filesWithPreviews = await Promise.all(
-        validFiles.map(async (file) => {
-          const preview = await createFilePreview(file)
-          return { file, preview }
-        })
-      )
-      
-      selectedFiles.value = filesWithPreviews
-      
-      // Navigace na obrazovku náhledu (pokud je online nebo offline)
       if (isOnline.value) {
-        // Online - přejít na náhled
-        router.push('/preview')
+        // Online - uložit soubory jako base64 data do sessionStorage
+        try {
+          const filesData = await Promise.all(
+            validFiles.map(async (file) => {
+              const base64Data = await fileToBase64(file)
+              return {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                lastModified: file.lastModified,
+                base64Data
+              }
+            })
+          )
+          
+          sessionStorage.setItem('selectedFiles', JSON.stringify(filesData))
+          sessionStorage.setItem('fileCount', validFiles.length.toString())
+          router.push('/preview')
+        } catch (error) {
+          console.error('Chyba při zpracování souborů:', error)
+          alert('Nepodařilo se zpracovat vybrané soubory. Zkuste to prosím znovu.')
+        }
       } else {
         // Offline - uložit do lokální fronty a zůstat zde
-        saveToLocalQueue(filesWithPreviews)
+        saveToLocalQueue(validFiles)
         alert('Fotky byly uloženy a budou odeslány, až budete online.')
       }
     }
@@ -86,26 +89,30 @@ const selectFromGallery = async () => {
   }
 }
 
-// Vytvoření náhledu souboru
-const createFilePreview = (file: File): Promise<string> => {
-  return new Promise((resolve) => {
+// Konverze souboru na base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = (e) => {
-      resolve(e.target?.result as string)
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result)
+      } else {
+        reject(new Error('Nepodařilo se převést soubor na base64'))
+      }
     }
+    reader.onerror = () => reject(reader.error)
     reader.readAsDataURL(file)
   })
 }
 
 // Uložení do lokální fronty pro offline režim
-const saveToLocalQueue = (files: FileWithPreview[]) => {
+const saveToLocalQueue = (files: File[]) => {
   try {
     const queue = JSON.parse(localStorage.getItem('uploadQueue') || '[]')
-    const newItems = files.map(({ file, preview }) => ({
+    const newItems = files.map(file => ({
       name: file.name,
       size: file.size,
       type: file.type,
-      preview,
       timestamp: Date.now()
     }))
     
