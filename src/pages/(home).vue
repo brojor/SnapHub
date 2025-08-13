@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import PWABadge from '../components/PWABadge.vue'
 import ConnectionStatus from '../components/ConnectionStatus.vue'
 import OfflineBanner from '../components/OfflineBanner.vue'
+import AppBar from '../components/AppBar.vue'
 
 interface FileWithPreview {
   file: File
@@ -130,19 +131,11 @@ const handleGalleryClick = () => {
 <template>
   <div class="min-h-screen bg-gray-50 flex flex-col">
     <!-- App Bar -->
-    <header class="bg-white shadow-sm border-b border-gray-200 px-4 py-3">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <h1 class="text-xl font-semibold text-gray-900">SnapHub</h1>
-        </div>
+    <AppBar title="SnapHub">
+      <template #right>
         <ConnectionStatus :is-online="isOnline" />
-      </div>
-    </header>
+      </template>
+    </AppBar>
 
     <!-- Offline Banner -->
     <OfflineBanner v-if="!isOnline" />

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ConnectionStatus from '../components/ConnectionStatus.vue'
+import AppBar from '../components/AppBar.vue'
 
 interface FileWithPreview {
   file: File
@@ -41,23 +42,15 @@ const uploadFiles = async () => {
 <template>
   <div class="min-h-screen bg-gray-50 flex flex-col">
     <!-- App Bar -->
-    <header class="bg-white shadow-sm border-b border-gray-200 px-4 py-3">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <button
-            @click="goBack"
-            class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Zpět"
-          >
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 class="text-xl font-semibold text-gray-900">Náhled & odeslání</h1>
-        </div>
+    <AppBar 
+      title="Náhled & odeslání" 
+      :show-back-button="true"
+      :on-back-click="goBack"
+    >
+      <template #right>
         <ConnectionStatus :is-online="isOnline" />
-      </div>
-    </header>
+      </template>
+    </AppBar>
 
     <!-- Hlavní obsah -->
     <main class="flex-1 p-4">
